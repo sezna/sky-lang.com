@@ -1,9 +1,10 @@
-port module Main exposing (..)
+module Main exposing (..)
 
 import Browser
 import Html exposing (Attribute, Html, div, input, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
+import Http
 
 
 
@@ -11,17 +12,7 @@ import Html.Events exposing (onInput)
 
 
 main =
-    Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
-
-
-
--- PORTS
-
-
-port sendMessage : String -> Cmd msg
-
-
-port messageReceiver : (String -> msg) -> Sub msg
+    Browser.sandbox { init = init, update = update, view = view }
 
 
 
@@ -34,13 +25,11 @@ type alias Model =
     }
 
 
-init : () -> ( Model, Cmd Msg )
-init flags =
-    ( { content = ""
-      , xml = "init value"
-      }
-    , Cmd.none
-    )
+init : Model
+init =
+    { content = ""
+    , xml = "init value"
+    }
 
 
 
@@ -52,23 +41,23 @@ type Msg
     | Recv String
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+compileCode : String -> ( String, Result Http.Error String )
+compileCode sourceCode =
+    Http.post
+        { url = "localhost:1414"
+        , body = sourceCode
+        , expect = Http.expectString Recv
+        }
+
+
+update : Msg -> Model -> Model
 update msg model =
     case msg of
         Compile newSource ->
-            ( { model | content = newSource }, sendMessage model.content )
+            { model | content = compileCode.first }
 
         Recv newXML ->
-            ( { model | xml = newXML }, Cmd.none )
-
-
-
--- SUBSCRIPTIONS
-
-
-subscriptions : Model -> Sub Msg
-subscriptions _ =
-    messageReceiver Recv
+            { model | xml = newXML }
 
 
 
