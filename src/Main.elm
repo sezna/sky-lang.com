@@ -19,6 +19,8 @@ main =
 
 
 port sendMessage : String -> Cmd msg
+
+
 port messageReceiver : (String -> msg) -> Sub msg
 
 
@@ -50,22 +52,28 @@ type Msg
     | Recv String
 
 
-update : Msg -> Model -> (Model, Cmd Msg)
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Compile newSource ->
-            ({ model | content = newSource }, sendMessage model.content)
+            ( { model | content = newSource }, sendMessage model.content )
 
         Recv newXML ->
-            ({ model | xml = newXML }, Cmd.none)
+            ( { model | xml = newXML }, Cmd.none )
+
+
 
 -- SUBSCRIPTIONS
 
+
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-  messageReceiver Recv
+    messageReceiver Recv
+
+
 
 -- VIEW
+
 
 view : Model -> Html Msg
 view model =
