@@ -12,7 +12,7 @@ import Http
 
 
 main =
-    Browser.sandbox { init = init, update = update, view = view }
+    Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
 
 
@@ -25,11 +25,13 @@ type alias Model =
     }
 
 
-init : Model
-init =
-    { content = ""
-    , xml = "init value"
-    }
+init : () -> ( Model, Cmd Msg )
+init _ =
+    ( { content = ""
+      , xml = "init value"
+      }
+    , Cmd.none
+    )
 
 
 
@@ -37,27 +39,47 @@ init =
 
 
 type Msg
-    = Compile String
-    | Recv String
+    = CompileRequest String
+    | FetchedCompiledXml (Result Http.Error String)
 
 
-compileCode : String -> ( String, Result Http.Error String )
+compileCode : String -> Cmd Msg
 compileCode sourceCode =
     Http.post
         { url = "localhost:1414"
-        , body = sourceCode
-        , expect = Http.expectString Recv
+        , body = Http.stringBody "text/html" sourceCode
+        , expect = Http.expectString FetchedCompiledXml
         }
 
 
-update : Msg -> Model -> Model
+wrapMsg : Result Http.Error String -> String
+wrapMsg res =
+    case res of
+        Err e ->
+            "Error!"
+
+        Ok s ->
+            s
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Compile newSource ->
-            { model | content = compileCode.first }
+        CompileRequest newSource ->
+            ( { model | content = newSource }, compileCode newSource )
 
-        Recv newXML ->
-            { model | xml = newXML }
+        FetchedCompiledXml compiledXml ->
+            case compiledXml of
+                Ok s ->
+                    ( { model | xml = s }, Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
 
 
 
@@ -67,6 +89,6 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ input [ placeholder "Text to reverse", value model.content, onInput Compile ] []
+        [ input [ placeholder "Text to reverse", value model.content, onInput CompileRequest ] []
         , div [] [ text model.xml ]
         ]
