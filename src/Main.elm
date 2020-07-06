@@ -1,6 +1,7 @@
 module Main exposing (..)
 
 import Browser
+import Debug exposing (log, toString)
 import Html exposing (Attribute, Html, div, input, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
@@ -27,8 +28,8 @@ type alias Model =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { content = ""
-      , xml = "init value"
+    ( { content = "fn main(): list pitch_rhythm { return [d4 quarter, d4 quarter, a4 quarter, a4 quarter, b4 quarter, b4 quarter, a4 half]; }"
+      , xml = ""
       }
     , Cmd.none
     )
@@ -46,8 +47,8 @@ type Msg
 compileCode : String -> Cmd Msg
 compileCode sourceCode =
     Http.post
-        { url = "localhost:1414"
-        , body = Http.stringBody "text/html" sourceCode
+        { url = "/api/compile"
+        , body = Http.stringBody "text/plain" sourceCode
         , expect = Http.expectString FetchedCompiledXml
         }
 
@@ -66,15 +67,15 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         CompileRequest newSource ->
-            ( { model | content = newSource }, compileCode newSource )
+            ( { model | content = newSource }, compileCode (log "source: " newSource) )
 
         FetchedCompiledXml compiledXml ->
             case compiledXml of
                 Ok s ->
                     ( { model | xml = s }, Cmd.none )
 
-                Err _ ->
-                    ( model, Cmd.none )
+                Err e ->
+                    ( log (toString e) model, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -89,6 +90,6 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     div []
-        [ input [ placeholder "Text to reverse", value model.content, onInput CompileRequest ] []
+        [ input [ placeholder "sky source code", value model.content, onInput CompileRequest ] []
         , div [] [ text model.xml ]
         ]
