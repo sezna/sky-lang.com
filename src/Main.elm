@@ -91,6 +91,8 @@ subscriptions model =
 view model =
     Element.layout
         [ Background.color (rgba 0 0 0 1)
+        , height fill
+        , width fill
         , Font.color (rgba 1 1 1 1)
         , Font.size 16
         , Font.family
@@ -114,12 +116,14 @@ codeEditor model =
             [ Background.color (rgba 1 1 1 1)
             , Font.color (rgba 0 0 0 1)
             , width (fillPortion 5)
+            , height fill
             ]
             (codeEditorConfig "sky source code" model.content)
         , Element.paragraph
             [ Background.color (rgba 1 1 1 1)
             , Font.color (rgba 0 0 0 1)
             , width (fillPortion 5)
+            , height fill
             ]
             [ text model.xml ]
         ]
