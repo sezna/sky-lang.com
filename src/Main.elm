@@ -1,10 +1,11 @@
 module Main exposing (..)
 
 import Browser
-import Debug exposing (log, toString)
-import Html exposing (Attribute, Html, div, input, text)
-import Html.Attributes exposing (..)
-import Html.Events exposing (onInput)
+import Element exposing (..)
+import Element.Background as Background
+import Element.Font as Font
+import Element.Input as Input
+import Element.Lazy
 import Http
 
 
@@ -67,7 +68,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         CompileRequest newSource ->
-            ( { model | content = newSource }, compileCode (log "source: " newSource) )
+            ( { model | content = newSource }, compileCode newSource )
 
         FetchedCompiledXml compiledXml ->
             case compiledXml of
@@ -75,7 +76,7 @@ update msg model =
                     ( { model | xml = s }, Cmd.none )
 
                 Err e ->
-                    ( log (toString e) model, Cmd.none )
+                    ( model, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -87,9 +88,49 @@ subscriptions model =
 -- VIEW
 
 
-view : Model -> Html Msg
 view model =
-    div []
-        [ input [ placeholder "sky source code", value model.content, onInput CompileRequest ] []
-        , div [] [ text model.xml ]
+    Element.layout
+        [ Background.color (rgba 0 0 0 1)
+        , Font.color (rgba 1 1 1 1)
+        , Font.size 16
+        , Font.family
+            [ Font.external
+                { url = "https://fonts.googleapis.com/css?family=EB+Garamond"
+                , name = "EB Garamond"
+                }
+            , Font.sansSerif
+            ]
         ]
+        (codeEditor model)
+
+
+
+--codeEditor model
+
+
+codeEditor model =
+    row []
+        [ Input.multiline
+            [ Background.color (rgba 1 1 1 1)
+            , Font.color (rgba 0 0 0 1)
+            , width (fillPortion 5)
+            ]
+            (codeEditorConfig "sky source code" model.content)
+        , Element.paragraph
+            [ Background.color (rgba 1 1 1 1)
+            , Font.color (rgba 0 0 0 1)
+            , width (fillPortion 5)
+            ]
+            [ text model.xml ]
+        ]
+
+
+codeEditorConfig : String -> String -> { label : Input.Label msg, onChange : String -> Msg, placeholder : Maybe (Input.Placeholder msg), spellcheck : Bool, text : String }
+codeEditorConfig label text =
+    { label = Input.labelHidden label
+    , onChange = \n -> CompileRequest n
+    , placeholder = Nothing
+    , spellcheck =
+        False
+    , text = text
+    }
