@@ -7,6 +7,7 @@ import Element.Font as Font
 import Element.Input as Input
 import Element.Lazy
 import Http
+import Task
 
 
 
@@ -29,11 +30,13 @@ type alias Model =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { content = "fn main(): list pitch_rhythm { return [d4 quarter, d4 quarter, a4 quarter, a4 quarter, b4 quarter, b4 quarter, a4 half]; }"
-      , xml = ""
-      }
-    , Cmd.none
-    )
+    let
+        model =
+            { content = "fn main(): list pitch_rhythm { return [d4 quarter, d4 quarter, a4 quarter, a4 quarter, b4 quarter, b4 quarter, a4 half]; }"
+            , xml = ""
+            }
+    in
+    ( model, Task.succeed (CompileRequest model.content) |> Task.perform (\n -> n) )
 
 
 
@@ -97,10 +100,10 @@ view model =
         , Font.size 16
         , Font.family
             [ Font.external
-                { url = "https://fonts.googleapis.com/css?family=EB+Garamond"
-                , name = "EB Garamond"
+                { url = "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&display=swap"
+                , name = "IBM Plex Mono"
                 }
-            , Font.sansSerif
+            , Font.monospace
             ]
         ]
         (codeEditor model)
@@ -111,18 +114,18 @@ view model =
 
 
 codeEditor model =
-    row []
+    row [ height fill, width fill ]
         [ Input.multiline
             [ Background.color (rgba 1 1 1 1)
             , Font.color (rgba 0 0 0 1)
-            , width (fillPortion 5)
+            , width <| fillPortion 5
             , height fill
             ]
             (codeEditorConfig "sky source code" model.content)
         , Element.paragraph
             [ Background.color (rgba 1 1 1 1)
             , Font.color (rgba 0 0 0 1)
-            , width (fillPortion 5)
+            , width <| fillPortion 5
             , height fill
             ]
             [ text model.xml ]
