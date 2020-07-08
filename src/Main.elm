@@ -32,7 +32,7 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     let
         model =
-            { content = "fn main(): list pitch_rhythm { return [d4 quarter, d4 quarter, a4 quarter, a4 quarter, b4 quarter, b4 quarter, a4 half]; }"
+            { content = "fn main(): list pitch_rhythm {\n  return [d4 quarter, d4 quarter, a4 quarter, a4 quarter,\n          b4 quarter, b4 quarter, a4 half]; \n}"
             , xml = ""
             }
     in
@@ -51,7 +51,7 @@ type Msg
 compileCode : String -> Cmd Msg
 compileCode sourceCode =
     Http.post
-        { url = "/api/compile"
+        { url = "/api/compile/png"
         , body = Http.stringBody "text/plain" sourceCode
         , expect = Http.expectString FetchedCompiledXml
         }
@@ -122,13 +122,13 @@ codeEditor model =
             , height fill
             ]
             (codeEditorConfig "sky source code" model.content)
-        , Element.paragraph
-            [ Background.color (rgba 1 1 1 1)
-            , Font.color (rgba 0 0 0 1)
-            , width <| fillPortion 5
+        , Element.image
+            [ width <| fillPortion 5
             , height fill
             ]
-            [ text model.xml ]
+            { src = model.xml
+            , description = "Compiled image from source code"
+            }
         ]
 
 

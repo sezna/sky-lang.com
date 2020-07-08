@@ -11,11 +11,12 @@ const fs = require("fs");
 const PORT = 1414;
 
 let app = express();
+
 app.use(morgan("combined"));
 app.use(bodyParser.text());
 
-app.post("/api/compile", (request, response) => {
-  console.log("   ", request.body);
+app.use('/compiled', express.static('compiled'));
+app.post("/api/compile/pdf", (request, response) => {
   let result = sky(request.body);
   // TODO if (result.isValid)
   let reqId = uuidv4();
@@ -27,15 +28,40 @@ app.post("/api/compile", (request, response) => {
       let command = `lilypond --output=compiled/pdf/${reqId} compiled/ly/${reqId}.ly`;
       exec(command, (err, stdout, stderr) => {
         if (err) throw err;
-        let file = fs.createReadStream(`compiled/pdf/${reqId}.pdf`);
-        let stat = fs.statSync(`compiled/pdf/${reqId}.pdf`);
-        response.setHeader("Content-Length", stat.size);
-        response.setHeader("Content-Type", "application/pdf");
-        response.setHeader(
-          "Content-Disposition",
-          "attachment; filename=quote.pdf"
-        );
-        file.pipe(response);
+        response.send(`/compiled/pdf/${reqId}.pdf`);
+        response.end();
+      });
+    });
+  });
+});
+
+app.post("/api/compile/png", (request, response) => {
+  let result = sky(request.body);
+  // TODO if (result.isValid)
+  let reqId = uuidv4();
+  fs.writeFile(`compiled/xml/${reqId}.xml`, result, err => {
+    if (err) throw err;
+    let command = `musicxml2ly compiled/xml/${reqId}.xml --output=compiled/ly/${reqId}.ly`;
+    exec(command, (err, stdout, stderr) => {
+      if (err) throw err;
+      // add cropping preamble to file
+      let croppingPreamble = `\\paper {
+indent = 0\\mm
+line-width = 110\\mm
+oddHeaderMarkup = ""
+evenHeaderMarkup = ""
+oddFooterMarkup = ""
+evenFooterMarkup = ""
+}
+`;
+      let command = `echo '${croppingPreamble}' | cat - compiled/ly/${reqId}.ly > compiled/ly/${reqId}.tmp.ly && mv compiled/ly/${reqId}.tmp.ly compiled/ly/${reqId}.ly`
+      exec(command, (err, stdout, stderr) => {
+        let command = `lilypond -dbackend=eps -dno-gs-load-fonts -dinclude-eps-fonts --png --output=compiled/png/${reqId} compiled/ly/${reqId}.ly`;
+        exec(command, (err, stdout, stderr) => {
+          if (err) throw err;
+          response.send(`/compiled/png/${reqId}.png`);
+          response.end();
+        });
       });
     });
   });
