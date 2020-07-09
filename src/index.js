@@ -15,7 +15,7 @@ let app = express();
 app.use(morgan("combined"));
 app.use(bodyParser.text());
 
-app.use('/compiled', express.static('compiled'));
+app.use("/compiled", express.static("compiled"));
 app.post("/api/compile/pdf", (request, response) => {
   let result = sky(request.body);
   // TODO if (result.isValid)
@@ -37,13 +37,22 @@ app.post("/api/compile/pdf", (request, response) => {
 
 app.post("/api/compile/png", (request, response) => {
   let result = sky(request.body);
-  // TODO if (result.isValid)
+  if (result.isOk) {
+    result = result.renderedXml;
+  } else {
+    response.json({
+      isOk: false,
+      content: `Error on line ${result.err.line}, column ${result.err.column}: 
+${result.err.reason}`})
+    response.end();
+    return;
+  }
   let reqId = uuidv4();
   fs.writeFile(`compiled/xml/${reqId}.xml`, result, err => {
-    if (err) throw err;
+    if (err) console.log(err);
     let command = `musicxml2ly compiled/xml/${reqId}.xml --output=compiled/ly/${reqId}.ly`;
     exec(command, (err, stdout, stderr) => {
-      if (err) throw err;
+      if (err) console.log(err);
       // add cropping preamble to file
       let croppingPreamble = `\\paper {
 indent = 0\\mm
@@ -54,12 +63,13 @@ oddFooterMarkup = ""
 evenFooterMarkup = ""
 }
 `;
-      let command = `echo '${croppingPreamble}' | cat - compiled/ly/${reqId}.ly > compiled/ly/${reqId}.tmp.ly && mv compiled/ly/${reqId}.tmp.ly compiled/ly/${reqId}.ly`
+      let command = `echo '${croppingPreamble}' | cat - compiled/ly/${reqId}.ly > compiled/ly/${reqId}.tmp.ly && mv compiled/ly/${reqId}.tmp.ly compiled/ly/${reqId}.ly`;
       exec(command, (err, stdout, stderr) => {
         let command = `lilypond -dbackend=eps -dno-gs-load-fonts -dinclude-eps-fonts --png --output=compiled/png/${reqId} compiled/ly/${reqId}.ly`;
         exec(command, (err, stdout, stderr) => {
-          if (err) throw err;
-          response.send(`/compiled/png/${reqId}.png`);
+          if (err) console.log(err);
+          console.log("sending png");
+          response.json({ isOk: true, content: `/compiled/png/${reqId}.png`});
           response.end();
         });
       });

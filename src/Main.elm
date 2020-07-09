@@ -1,12 +1,15 @@
 module Main exposing (..)
 
 import Browser
+import Debug exposing (log, toString)
 import Element exposing (..)
 import Element.Background as Background
 import Element.Font as Font
 import Element.Input as Input
 import Element.Lazy
 import Http
+import Json.Decode exposing (Decoder, bool, null, oneOf, string)
+import Json.Decode.Pipeline exposing (optional, required)
 import Task
 
 
@@ -25,6 +28,7 @@ main =
 type alias Model =
     { content : String
     , xml : String
+    , errMsg : Maybe String
     }
 
 
@@ -34,6 +38,7 @@ init _ =
         model =
             { content = "fn main(): list pitch_rhythm {\n  return [d4 quarter, d4 quarter, a4 quarter, a4 quarter,\n          b4 quarter, b4 quarter, a4 half]; \n}"
             , xml = ""
+            , errMsg = Nothing
             }
     in
     ( model, Task.succeed (CompileRequest model.content) |> Task.perform (\n -> n) )
@@ -45,7 +50,7 @@ init _ =
 
 type Msg
     = CompileRequest String
-    | FetchedCompiledXml (Result Http.Error String)
+    | FetchedCompiledXml (Result Http.Error CompileServiceResponse)
 
 
 compileCode : String -> Cmd Msg
@@ -53,7 +58,7 @@ compileCode sourceCode =
     Http.post
         { url = "/api/compile/png"
         , body = Http.stringBody "text/plain" sourceCode
-        , expect = Http.expectString FetchedCompiledXml
+        , expect = Http.expectJson FetchedCompiledXml decodeCompileServiceResponse
         }
 
 
@@ -76,10 +81,25 @@ update msg model =
         FetchedCompiledXml compiledXml ->
             case compiledXml of
                 Ok s ->
-                    ( { model | xml = s }, Cmd.none )
+                    let
+                        xmlContent =
+                            if s.isOk then
+                                s.content
+
+                            else
+                                ""
+
+                        errMsg =
+                            if not s.isOk then
+                                s.content
+
+                            else
+                                ""
+                    in
+                    ( { model | xml = log "xml content" xmlContent, errMsg = Just errMsg }, Cmd.none )
 
                 Err e ->
-                    ( model, Cmd.none )
+                    ( log (toString e) model, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -109,10 +129,6 @@ view model =
         (codeEditor model)
 
 
-
---codeEditor model
-
-
 codeEditor model =
     row [ height fill, width fill ]
         [ Input.multiline
@@ -122,13 +138,18 @@ codeEditor model =
             , height fill
             ]
             (codeEditorConfig "sky source code" model.content)
-        , Element.image
-            [ width <| fillPortion 5
-            , height fill
-            ]
-            { src = model.xml
-            , description = "Compiled image from source code"
-            }
+        , case model.errMsg of
+            Just err ->
+                Element.el [ width <| fillPortion 5, height fill, Font.color (rgba 255 50 50 1) ] (text err)
+
+            Nothing ->
+                Element.image
+                    [ width <| fillPortion 5
+                    , height fill
+                    ]
+                    { src = log "debug model xml" model.xml
+                    , description = "Compiled image from source code"
+                    }
         ]
 
 
@@ -141,3 +162,20 @@ codeEditorConfig label text =
         False
     , text = text
     }
+
+
+type alias CompileServiceResponse =
+    { isOk : Bool
+    , content : String
+    }
+
+
+decodeCompileServiceResponse : Decoder CompileServiceResponse
+decodeCompileServiceResponse =
+    Json.Decode.succeed CompileServiceResponse
+        |> required "isOk" bool
+        |> required "content" string
+
+
+
+-- either an error message or a link to the rendered image
