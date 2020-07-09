@@ -81,4 +81,9 @@ app.get("/", (_, response) => {
   response.sendFile(path.join(__dirname, "index.html"));
 });
 
+app.get("/main.js", (_, response) => {
+  response.sendFile(path.join(__dirname, "main.js"));
+});
+
+
 app.listen(PORT, () => console.log("Server listening on port " + PORT));

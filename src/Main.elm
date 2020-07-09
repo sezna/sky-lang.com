@@ -1,7 +1,6 @@
 module Main exposing (..)
 
 import Browser
-import Debug exposing (log, toString)
 import Element exposing (..)
 import Element.Background as Background
 import Element.Font as Font
@@ -36,7 +35,7 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     let
         model =
-            { content = "fn main(): list pitch_rhythm {\n  return [d4 quarter, d4 quarter, a4 quarter, a4 quarter,\n          b4 quarter, b4 quarter, a4 half]; \n}"
+            { content = "-- helper functions you use must be declared before main\n\nfn pointless_if_comparison(num: number): pitch_rhythm {\n   -- ifs are expressions\n   return if num < 5 then a4 quarter else e4 quarter;\n}\n\n-- all sky programs need a main function which returns the contents of the music\n\nfn main(): list list pitch_rhythm {\n\n  -- lists of pitches with associated rhythms can be interpreted as parts to a piece\n\n  list pitch_rhythm twinkle_twinkle_melody =\n     [d4 quarter, d4 quarter, a4 quarter, a#4 quarter,\n      b4 quarter, b4 quarter, a4 half];\n\n  list pitch_rhythm twinkle_twinkle_harmony =\n     [d3 half,               \\f#3, a3\\ half,\n      f#3 dotted eighth, g3 sixteenth, f#3 eighth, b2 eighth, \\e3, c#3\\ half ];\n\n\n  -- combining these two lists into a 2d list means that the piece has multiple parts\n\n  list list pitch_rhythm twinkle_twinkle = [twinkle_twinkle_melody, twinkle_twinkle_harmony];\n\n  -- parts can be indexed and assigned properties as seen fit\n  twinkle_twinkle.key = d major;\n  twinkle_twinkle[0].dynamic = f;\n  twinkle_twinkle[0].part_id = melody;\n  twinkle_twinkle[0][3] = pointless_if_comparison(3);\n  twinkle_twinkle[1].part_id = harmony;\n  twinkle_twinkle[1].dynamic = mp;\n  twinkle_twinkle[1].clef = bass;\n\n  -- whatever is returned from `main` is what is rendered on the right\n  return twinkle_twinkle;\n}\n            "
             , xml = ""
             , errMsg = Nothing
             }
@@ -51,6 +50,7 @@ init _ =
 type Msg
     = CompileRequest String
     | FetchedCompiledXml (Result Http.Error CompileServiceResponse)
+    | UpdateContent String
 
 
 compileCode : String -> Cmd Msg
@@ -96,10 +96,13 @@ update msg model =
                             else
                                 Nothing
                     in
-                    ( { model | xml = log "xml content" xmlContent, errMsg = errMsg }, Cmd.none )
+                    ( { model | xml = xmlContent, errMsg = errMsg }, Cmd.none )
 
                 Err e ->
-                    ( log (toString e) model, Cmd.none )
+                    ( model, Cmd.none )
+
+        UpdateContent str ->
+            ( { model | content = str }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -131,13 +134,21 @@ view model =
 
 codeEditor model =
     row [ height fill, width fill ]
-        [ Input.multiline
-            [ Background.color (rgba 1 1 1 1)
-            , Font.color (rgba 0 0 0 1)
-            , width <| fillPortion 5
-            , height fill
+        [ column [ width <| fillPortion 5, height fill ]
+            [ Input.button
+                [ Font.center
+                , Font.size 16
+                , height <| px 50
+                , width fill
+                ]
+                { onPress = Just (CompileRequest model.content), label = text "Run Code" }
+            , Input.multiline
+                [ Background.color (rgba 1 1 1 1)
+                , Font.color (rgba 0 0 0 1)
+                , height fill
+                ]
+                (codeEditorConfig "sky source code" model.content)
             ]
-            (codeEditorConfig "sky source code" model.content)
         , case model.errMsg of
             Just err ->
                 Element.el [ width <| fillPortion 5, height fill, Font.color (rgba 255 50 50 1) ] (text err)
@@ -147,7 +158,7 @@ codeEditor model =
                     [ width <| fillPortion 5
                     , height fill
                     ]
-                    { src = log "debug model xml" model.xml
+                    { src = model.xml
                     , description = "Compiled image from source code"
                     }
         ]
@@ -156,7 +167,7 @@ codeEditor model =
 codeEditorConfig : String -> String -> { label : Input.Label msg, onChange : String -> Msg, placeholder : Maybe (Input.Placeholder msg), spellcheck : Bool, text : String }
 codeEditorConfig label text =
     { label = Input.labelHidden label
-    , onChange = \n -> CompileRequest n
+    , onChange = \n -> UpdateContent n
     , placeholder = Nothing
     , spellcheck =
         False
