@@ -91,12 +91,12 @@ update msg model =
 
                         errMsg =
                             if not s.isOk then
-                                s.content
+                                Just s.content
 
                             else
-                                ""
+                                Nothing
                     in
-                    ( { model | xml = log "xml content" xmlContent, errMsg = Just errMsg }, Cmd.none )
+                    ( { model | xml = log "xml content" xmlContent, errMsg = errMsg }, Cmd.none )
 
                 Err e ->
                     ( log (toString e) model, Cmd.none )
