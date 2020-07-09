@@ -22,7 +22,7 @@ app.post("/api/compile/pdf", (request, response) => {
   let reqId = uuidv4();
   fs.writeFile(`compiled/xml/${reqId}.xml`, result, err => {
     if (err) throw err;
-    let command = `musicxml2ly compiled/xml/${reqId}.xml --output=compiled/ly/${reqId}.ly`;
+    let command = `musicxml2ly --no-beaming compiled/xml/${reqId}.xml --output=compiled/ly/${reqId}.ly`;
     exec(command, (err, stdout, stderr) => {
       if (err) throw err;
       let command = `lilypond --output=compiled/pdf/${reqId} compiled/ly/${reqId}.ly`;
@@ -50,7 +50,7 @@ ${result.err.reason}`})
   let reqId = uuidv4();
   fs.writeFile(`compiled/xml/${reqId}.xml`, result, err => {
     if (err) console.log(err);
-    let command = `musicxml2ly compiled/xml/${reqId}.xml --output=compiled/ly/${reqId}.ly`;
+    let command = `musicxml2ly --no-beaming compiled/xml/${reqId}.xml --output=compiled/ly/${reqId}.ly`;
     exec(command, (err, stdout, stderr) => {
       if (err) console.log(err);
       // add cropping preamble to file
