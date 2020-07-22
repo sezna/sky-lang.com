@@ -154,13 +154,20 @@ codeEditor model =
                 Element.el [ width <| fillPortion 5, height fill, Font.color (rgba 255 50 50 1) ] (text err)
 
             Nothing ->
-                Element.image
-                    [ width <| fillPortion 5
-                    , height fill
+                column [ width <| fillPortion 5, height fill ]
+                    [ Input.button
+                        [ Font.center
+                        , Font.size 16
+                        , height <| px 50
+                        , width fill
+                        ]
+                        { onPress = Nothing, label = text "Play Audio" }
+                    , Element.image
+                        []
+                        { src = model.xml
+                        , description = "Compiled image from source code"
+                        }
                     ]
-                    { src = model.xml
-                    , description = "Compiled image from source code"
-                    }
         ]
 
 
