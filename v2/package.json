@@ -1,0 +1,15 @@
+{
+  "name": "sky-lang.com",
+  "version": "0.0.0",
+  "description": "The website for the sky programming language.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/sezna/sky-lang.com"
+  },
+  "author": "Alex Hansen <alex@alex-hansen.com>",
+  "license": "ISC"
+}
