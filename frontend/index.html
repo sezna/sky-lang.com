@@ -1,0 +1,119 @@
+<html>
+  <header>
+    <link rel="stylesheet" href="/style.css">
+
+  </header>
+
+  <body>
+    <div id="main-content">
+    <div id="left-column" class="column">
+      <button id="compile">Compile</button>
+      <div id="editor">
+-- helper functions you use must be declared before main
+
+fn pointless_if_comparison(num: number): pitch_rhythm {
+   -- ifs are expressions
+   return if num < 5 then a4 quarter else e4 quarter; 
+}
+
+-- all sky programs need a main function which returns the contents of the music
+
+fn main(): list list pitch_rhythm {
+
+  -- lists of pitches with associated rhythms can be interpreted as parts to a piece
+
+  list pitch_rhythm twinkle_twinkle_melody =
+     [d4 quarter, d4 quarter, a4 quarter, a#4 quarter,
+      b4 quarter, b4 quarter, a4 half];
+
+  list pitch_rhythm twinkle_twinkle_harmony =
+     [d3 half,               \f#3, a3\ half,
+      f#3 dotted eighth, g3 sixteenth, f#3 eighth, b2 eighth, \e3, c#3\ half ];
+
+
+  -- combining these two lists into a 2d list means that the piece has multiple parts
+
+  list list pitch_rhythm twinkle_twinkle = [twinkle_twinkle_melody, twinkle_twinkle_harmony];
+
+  -- parts can be indexed and assigned properties as seen fit
+  twinkle_twinkle.key = d major;
+  twinkle_twinkle[0].dynamic = f;
+  twinkle_twinkle[0].part_id = melody;
+  twinkle_twinkle[0][3] = pointless_if_comparison(3);
+  twinkle_twinkle[1].part_id = harmony;
+  twinkle_twinkle[1].dynamic = mp;
+  twinkle_twinkle[1].clef = bass;
+
+  -- whatever is returned from `main` is what is rendered on the right
+  return twinkle_twinkle;
+}
+      </div>
+        <script src="/ace.js" type="text/javascript" charset="utf-8"></script>
+        <script>
+            var editor = ace.edit("editor");
+            editor.renderer.setOption('showPrintMargin', false)
+            let Range = ace.require('ace/range').Range;
+            let errorMarker;
+        </script>
+    </div>
+    <div id="right-column" class="column">
+
+      <div id="right-col-buttons">
+        <button disabled id="play-audio">Play Audio</button>
+        <div id="dropdown">
+          <button id="download-button" disabled>Download</button>
+          <div class="dropdown-content">
+            <p>MusicXML</p>
+            <p>PDF</p>
+            <p>MIDI</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="music-content">
+      </div>
+
+    </div>
+    </div>
+  </body>
+
+  <script>
+    function compileCodeAndUpdateDOM() {
+      let code = editor.getValue();
+      console.log(code);
+      let body = { code };
+      let resp = fetch("/api/compile/png", {
+        method: 'POST',
+        mode: 'same-origin',
+        headers: { 'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+
+      }).then(resp => resp.json()).then(data => {
+        let {isOk, content} = data;
+        if (!isOk) {
+          console.log("code was incorrect");
+          document.getElementById("download-button").setAttribute('disabled', "");
+          document.getElementById("play-audio").setAttribute('disabled', "");
+          document.getElementById("dropdown").className = "";
+          let { line, column } = data; 
+          if (errorMarker) {
+            editor.session.removeMarker(errorMarker);
+          }
+          errorMarker = editor.session.addMarker(new Range(line - 1, column, line - 1, column + 1), "marked", "text");        
+          document.getElementById("music-content").innerHTML = `<div class=\"err\">${content}</div>`;
+        } else {
+          let dropdown = document.getElementById("dropdown");
+          dropdown.className = "dropdown";
+          document.getElementById("download-button").removeAttribute('disabled');
+          document.getElementById("play-audio").removeAttribute('disabled');
+          document.getElementById("music-content").innerHTML = `<img src=${content}></img>`;
+        }
+      
+      });
+    }
+    document.getElementById("compile").addEventListener("click", compileCodeAndUpdateDOM)
+
+  </script>
+
+</html>
