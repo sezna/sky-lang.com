@@ -22,33 +22,47 @@ app.use(bodyParser.json());
 app.use("/compiled", express.static("compiled"));
 app.use("/", express.static("frontend"));
 
-app.post("/api/compile/pdf", (request, response) => {
-  let result = sky(request.body.code);
-  // TODO if (result.isValid)
-  let reqId = simpleHash(request.body.code);
-  // check if this has been compiled already
-  if (fs.existsSync(`compiled/pdf/${reqId}.pdf`)) {
-    response.send(`/compiled/pdf/${reqId}.pdf`);
-    response.end();
-  } else {
-    // if it has not been compiled already, compile it.
-    fs.writeFile(`compiled/xml/${reqId}.xml`, result, (err) => {
+app.get("/api/pdf/:reqId", (request, response) => {
+  let { reqId } = request.params;
+  if (fs.existsSync(`compiled/ly/${reqId}.ly`)) {
+    let command = `lilypond --output=compiled/pdf/${reqId}.pdf compiled/ly/${reqId}.ly`;
+    exec(command, (err, stdout, stderr) => {
       if (err) console.log(err);
-      let command = `musicxml2ly --no-beaming compiled/xml/${reqId}.xml --output=compiled/ly/${reqId}.ly`;
-      exec(command, (err, stdout, stderr) => {
-        if (err) console.log(err);
-        let command = `lilypond --output=compiled/pdf/${reqId} compiled/ly/${reqId}.ly`;
-        exec(command, (err, stdout, stderr) => {
-          if (err) console.log(err);
-          response.send(`/compiled/pdf/${reqId}.pdf`);
-          response.end();
-        });
-      });
+      response.download(`compiled/pdf/${reqId}.pdf`);
+    });
+  } else {
+    response.json({
+      isOk: false,
+      content: `Lilypond for req ${reqId} did not exist.`,
     });
   }
 });
 
-app.post("/api/compile/png", (request, response) => {
+app.get("/api/xml/:reqId", (request, response) => {
+  let { reqId } = request.params;
+  if (fs.existsSync(`compiled/xml/${reqId}.xml`)) {
+    response.download(`compiled/xml/${reqId}.xml`);
+  } else {
+    response.json({
+      isOk: false,
+      content: `MusicXML for req ${reqId} did not exist.`,
+    });
+  }
+});
+
+app.get("/api/midi/:reqId", (request, response) => {
+  let { reqId } = request.params;
+  if (fs.existsSync(`compiled/png/${reqId}.midi`)) {
+    response.download(`compiled/png/${reqId}.midi`);
+  } else {
+    response.json({
+      isOk: false,
+      content: `Midi for req ${reqId} did not exist.`,
+    });
+  }
+});
+
+app.post("/api/compile", (request, response) => {
   let code = request.body.code;
   let reqId = simpleHash(code);
   // check if this has been compiled already
@@ -65,6 +79,9 @@ app.post("/api/compile/png", (request, response) => {
     response.json({
       isOk: true,
       content: `/compiled/png/${reqId}.png`,
+      pdfLink: `/api/pdf/${reqId}`,
+      midiLink: `/api/midi/${reqId}`,
+      xmlLink: `/api/xml/${reqId}`,
     });
     response.end();
   } else {
@@ -88,7 +105,7 @@ ${result.err.reason}`,
     }
     fs.writeFile(`compiled/xml/${reqId}.xml`, result, (err) => {
       if (err) console.log(err);
-      let command = `musicxml2ly --no-beaming compiled/xml/${reqId}.xml --output=compiled/ly/${reqId}.ly`;
+      let command = `musicxml2ly -m --no-beaming compiled/xml/${reqId}.xml --output=compiled/ly/${reqId}.ly`;
       exec(command, (err, stdout, stderr) => {
         if (err) console.log(err);
         // add cropping preamble to file
@@ -110,6 +127,9 @@ evenFooterMarkup = ""
             response.json({
               isOk: true,
               content: `/compiled/png/${reqId}.png`,
+              pdfLink: `/api/pdf/${reqId}`,
+              midiLink: `/api/midi/${reqId}`,
+              xmlLink: `/api/xml/${reqId}`,
             });
             response.end();
           });

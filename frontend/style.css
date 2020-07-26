@@ -1,8 +1,51 @@
+/*
+ * scheme:
+ * 
+--flame: hsla(14, 77%, 54%, 1);
+--honeydew: hsla(144, 48%, 94%, 1);
+--light-periwinkle: hsla(216, 44%, 85%, 1);
+--sunglow: hsla(46, 100%, 54%, 1);
+--raisin-black: hsla(340, 7%, 17%, 1);
+--green-ryb: hsla(91, 46%, 47%, 1);
+ *
+ */
+:root {
+  --bg-color: #2E282A;
+  --comment-color: #76B041; /* slightly lighter to deemphasize */
+  --func-app-color: hsla(46, 100%, 54%, 1);
+  --literal-color: #83BCA9;
+  --keyword-color: #C9D6EA;
+  --control-flow-color: hsla(14, 77%, 54%, 1);
+}
+
 #main-content {
   display: flex;
   flex-direction: row;
 }
 
+.ace_pitch-token, .ace_pitch-rhythm-token, .ace_rhythm-token, .ace_numeric-token {
+  color: var(--literal-color);
+}
+
+.ace_function-app-token {
+  color: var(--func-app-color);
+}
+
+.ace_sky-keyword {
+  color: var(--keyword-color);
+}
+
+.ace_control-flow-keyword {
+  color: var(--control-flow-color);
+}
+
+.ace_cursor { 
+  color: #AEAFAD !important;
+}
+
+.ace_comment {
+  color: var(--comment-color);
+}
 
 .column {
   display: flex;

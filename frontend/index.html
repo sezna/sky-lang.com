@@ -36,36 +36,28 @@ fn main(): list list pitch_rhythm {
   list list pitch_rhythm twinkle_twinkle = [twinkle_twinkle_melody, twinkle_twinkle_harmony];
 
   -- parts can be indexed and assigned properties as seen fit
-  twinkle_twinkle.key = d major;
+  twinkle_twinkle.key        = d major;
   twinkle_twinkle[0].dynamic = f;
   twinkle_twinkle[0].part_id = melody;
-  twinkle_twinkle[0][3] = pointless_if_comparison(3);
+  twinkle_twinkle[0][3]      = pointless_if_comparison(3);
   twinkle_twinkle[1].part_id = harmony;
   twinkle_twinkle[1].dynamic = mp;
-  twinkle_twinkle[1].clef = bass;
+  twinkle_twinkle[1].clef    = bass;
 
   -- whatever is returned from `main` is what is rendered on the right
   return twinkle_twinkle;
-}
-      </div>
-        <script src="/ace.js" type="text/javascript" charset="utf-8"></script>
-        <script>
-            var editor = ace.edit("editor");
-            editor.renderer.setOption('showPrintMargin', false)
-            let Range = ace.require('ace/range').Range;
-            let errorMarker;
-        </script>
+}</div>
     </div>
     <div id="right-column" class="column">
 
       <div id="right-col-buttons">
-        <button disabled id="play-audio">Play Audio</button>
+        <button disabled id="play-audio">Play Audio (Coming Soon)</button>
         <div id="dropdown">
           <button id="download-button" disabled>Download</button>
           <div class="dropdown-content">
-            <p>MusicXML</p>
-            <p>PDF</p>
-            <p>MIDI</p>
+            <p id="musicxml">MusicXML</p>
+            <p id="pdf">PDF</p>
+            <p id="midi">MIDI</p>
           </div>
         </div>
       </div>
@@ -77,43 +69,7 @@ fn main(): list list pitch_rhythm {
     </div>
   </body>
 
-  <script>
-    function compileCodeAndUpdateDOM() {
-      let code = editor.getValue();
-      console.log(code);
-      let body = { code };
-      let resp = fetch("/api/compile/png", {
-        method: 'POST',
-        mode: 'same-origin',
-        headers: { 'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-
-      }).then(resp => resp.json()).then(data => {
-        let {isOk, content} = data;
-        if (!isOk) {
-          console.log("code was incorrect");
-          document.getElementById("download-button").setAttribute('disabled', "");
-          document.getElementById("play-audio").setAttribute('disabled', "");
-          document.getElementById("dropdown").className = "";
-          let { line, column } = data; 
-          if (errorMarker) {
-            editor.session.removeMarker(errorMarker);
-          }
-          errorMarker = editor.session.addMarker(new Range(line - 1, column, line - 1, column + 1), "marked", "text");        
-          document.getElementById("music-content").innerHTML = `<div class=\"err\">${content}</div>`;
-        } else {
-          let dropdown = document.getElementById("dropdown");
-          dropdown.className = "dropdown";
-          document.getElementById("download-button").removeAttribute('disabled');
-          document.getElementById("play-audio").removeAttribute('disabled');
-          document.getElementById("music-content").innerHTML = `<img src=${content}></img>`;
-        }
-      
-      });
-    }
-    document.getElementById("compile").addEventListener("click", compileCodeAndUpdateDOM)
-
-  </script>
+    <script src="/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/script.js" type="text/javascript" charset="utf-8"></script>
 
 </html>
