@@ -30,7 +30,7 @@ function compileCodeAndUpdateDOM() {
         if (errorMarker) {
           editor.session.removeMarker(errorMarker);
         }
-        let { pdfLink, xmlLink, midiLink } = data;
+        let { pdfLink, xmlLink, midiLink, lyLink } = data;
         let dropdown = document.getElementById("dropdown");
         dropdown.className = "dropdown";
         document.getElementById("download-button").removeAttribute("disabled");
@@ -38,6 +38,7 @@ function compileCodeAndUpdateDOM() {
         document.getElementById("pdf").innerHTML = `<a href=${pdfLink}>PDF</a>`;
         document.getElementById("musicxml").innerHTML = `<a href=${xmlLink}>MusicXML</a>`;
         document.getElementById("midi").innerHTML = `<a href=${midiLink}>MIDI</a>`;
+        document.getElementById("lilypond").innerHTML = `<a href=${lyLink}>Lilypond</a>`;
         document.getElementById(
           "music-content"
         ).innerHTML = `<img src=${content}></img>`;

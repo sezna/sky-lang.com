@@ -50,6 +50,18 @@ app.get("/api/xml/:reqId", (request, response) => {
   }
 });
 
+app.get("/api/ly/:reqId", (request, response) => {
+  let { reqId } = request.params;
+  if (fs.existsSync(`compiled/ly/${reqId}.ly`)) {
+    response.download(`compiled/ly/${reqId}.ly`);
+  } else {
+    response.json({
+      isOk: false,
+      content: `Lilypond for req ${reqId} did not exist.`,
+    });
+  }
+});
+
 app.get("/api/midi/:reqId", (request, response) => {
   let { reqId } = request.params;
   if (fs.existsSync(`compiled/png/${reqId}.midi`)) {
@@ -82,6 +94,7 @@ app.post("/api/compile", (request, response) => {
       pdfLink: `/api/pdf/${reqId}`,
       midiLink: `/api/midi/${reqId}`,
       xmlLink: `/api/xml/${reqId}`,
+      lyLink: `/api/ly/${reqId}`,
     });
     response.end();
   } else {
@@ -130,6 +143,7 @@ evenFooterMarkup = ""
               pdfLink: `/api/pdf/${reqId}`,
               midiLink: `/api/midi/${reqId}`,
               xmlLink: `/api/xml/${reqId}`,
+              lyLink: `/api/ly/${reqId}`,
             });
             response.end();
           });
