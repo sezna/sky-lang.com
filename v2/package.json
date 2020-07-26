@@ -4,12 +4,21 @@
   "description": "The website for the sky programming language.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node backend/main.js"
   },
   "repository": {
     "type": "git",
     "url": "github.com/sezna/sky-lang.com"
   },
   "author": "Alex Hansen <alex@alex-hansen.com>",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "morgan": "^1.10.0",
+    "path": "^0.12.7",
+    "sky-lang": "0.0.10",
+    "uuid": "^8.2.0"
+  }
 }

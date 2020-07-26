@@ -13,9 +13,11 @@ const PORT = 1414;
 let app = express();
 
 app.use(morgan("combined"));
-app.use(bodyParser.text());
+app.use(bodyParser.json());
 
 app.use("/compiled", express.static("compiled"));
+app.use("/", express.static("frontend"));
+
 app.post("/api/compile/pdf", (request, response) => {
   let result = sky(request.body);
   // TODO if (result.isValid)
@@ -36,14 +38,20 @@ app.post("/api/compile/pdf", (request, response) => {
 });
 
 app.post("/api/compile/png", (request, response) => {
-  let result = sky(request.body);
+  let code = request.body.code;
+  let result = sky(code);
   if (result.isOk) {
+    console.log("code was ok");
     result = result.renderedXml;
   } else {
+    console.log("code was not ok");
     response.json({
       isOk: false,
       content: `Error on line ${result.err.line}, column ${result.err.column}: 
-${result.err.reason}`})
+${result.err.reason}`,
+      line: result.err.line,
+      column: result.err.column,
+    })
     response.end();
     return;
   }
