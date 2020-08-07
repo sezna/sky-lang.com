@@ -4,7 +4,7 @@ function setCode(progName) {
 }
 
 var editor = ace.edit("editor");
-editor.setValue(localStorage.getItem('editorCode') || defaultCode, -1);
+editor.setValue(localStorage.getItem('editorCode') || exampleCode["twinkle"], -1);
 
 function compileCodeAndUpdateDOM() {
 
