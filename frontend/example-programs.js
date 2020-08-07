@@ -47,21 +47,22 @@ fn main(): list list pitch_rhythm {
         _ eighth, ab4 eighth, ab4 eighth, ab4 eighth,
         ];
         treble_part[0].dynamic = ff;
+        treble_part[3].fermata = true;
+        treble_part[9].fermata = true;
         treble_part[11].dynamic = p;
         
-    list pitch_rhythm bass_part_one = [
-        _ eighth, \\eb5, eb4\\ eighth, \\eb5, eb4\\ eighth, \\eb5, eb4\\ eighth,
-        \\c5, c4\\ half,
-        _ eighth
+    list pitch_rhythm bass_part = [
+        _ eighth, \g3, g2\ eighth, \g3, g2\ eighth, \g3, g2\ eighth, 
+        \eb3, eb2\ half,
+        _ eighth, \f3, f2\ eighth, \f3, f2\ eighth, \f3, f2\ eighth,
+        \d3, d2\ half,
+        _ half,
+        \c4, eb4\ half
     ];
     
-    
-    list pitch_rhythm bass_part_two = [
-        \\d5, d4\\ eighth, \\d5, d4\\ eighth, \\d5, d4\\ eighth
-    ];
-
-    list pitch_rhythm bass_part = bass_part_one + bass_part_two;
-        
+    bass_part[3].fermata = true;
+    bass_part[9].fermata = true;
+    bass_part.clef = bass;
     
     list list pitch_rhythm beethovens_fifth = [treble_part, bass_part];
     beethovens_fifth.key = c minor;
