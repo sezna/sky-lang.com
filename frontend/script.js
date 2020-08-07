@@ -1,5 +1,15 @@
+
+function setCode(progName) {
+  editor.setValue(exampleCode[progName], -1);
+}
+
+var editor = ace.edit("editor");
+editor.setValue(localStorage.getItem('editorCode') || defaultCode, -1);
+
 function compileCodeAndUpdateDOM() {
+
   let code = editor.getValue();
+  localStorage.setItem('editorCode', code);
   let body = { code };
   let resp = fetch("/api/compile", {
     method: "POST",
@@ -128,11 +138,7 @@ define("ace/mode/custom_highlight_rules", [], function (
   exports.CustomHighlightRules = CustomHighlightRules;
 });
 
-document
-  .getElementById("compile")
-  .addEventListener("click", compileCodeAndUpdateDOM);
 
-var editor = ace.edit("editor");
 editor.session.setMode("ace/mode/custom");
 editor.renderer.setOption("showPrintMargin", false);
 editor.container.style.background="#2E282A";
