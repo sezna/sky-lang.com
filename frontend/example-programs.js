@@ -36,4 +36,40 @@ fn main(): list list pitch_rhythm {
 
   -- whatever is returned from \`main\` is what is rendered on the right
   return twinkle_twinkle;
+}`,
+  beetsFifth: `fn main(): list list pitch_rhythm {
+    list pitch_rhythm treble_part = [
+        _ eighth, g4 eighth, g4 eighth, g4 eighth,
+        eb4 half,
+        _ eighth, f4 eighth, f4 eighth, f4 eighth,
+        d4 half,
+        _ eighth, g4 eighth, g4 eighth, g4 eighth,
+        _ eighth, ab4 eighth, ab4 eighth, ab4 eighth,
+        ];
+        treble_part[0].dynamic = ff;
+        treble_part[11].dynamic = p;
+        
+    list pitch_rhythm bass_part_one = [
+        _ eighth, \\eb5, eb4\\ eighth, \\eb5, eb4\\ eighth, \\eb5, eb4\\ eighth,
+        \\c5, c4\\ half,
+        _ eighth
+    ];
+    
+    
+    list pitch_rhythm bass_part_two = [
+        \\d5, d4\\ eighth, \\d5, d4\\ eighth, \\d5, d4\\ eighth
+    ];
+
+    list pitch_rhythm bass_part = bass_part_one + bass_part_two;
+        
+    
+    list list pitch_rhythm beethovens_fifth = [treble_part, bass_part];
+    beethovens_fifth.key = c minor;
+    beethovens_fifth.time = 2/4;
+    
+    beethovens_fifth.composer = Ludwig van Beethoven;
+    beethovens_fifth.title = Symphony No. 5 in C Minor;
+    
+    return beethovens_fifth;
+
 }`};

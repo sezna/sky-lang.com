@@ -165,5 +165,7 @@ function simpleHash(input) {
     hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32bit integer
   }
+  hash = hash.toString();
+  hash = hash.replace(/-/g, "xx");
   return hash;
 }

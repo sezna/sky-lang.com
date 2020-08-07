@@ -9,3 +9,7 @@ document
   .getElementById("twinkle")
   .addEventListener("click", () => setCode("twinkle"))
 
+document
+  .getElementById("beets-fifth")
+  .addEventListener("click", () => setCode("beetsFifth"))
+
