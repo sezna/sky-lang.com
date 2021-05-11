@@ -221,9 +221,9 @@ ipaddr.js@1.9.1:
   integrity sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==
 
 lodash@^4.17.15:
-  version "4.17.19"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.19.tgz#e48ddedbe30b3321783c5b4301fbd353bc1e4a4b"
-  integrity sha512-JNvd8XER9GQX0v2qJgsaN/mzFCNA5BRe/j8JN9d+tWyGLSodKQHKFicdwNYzWwI3wjRnaKPsGj1XkBjx/F96DQ==
+  version "4.17.21"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
+  integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
 
 media-typer@0.3.0:
   version "0.3.0"
@@ -390,10 +390,10 @@ setprototypeof@1.1.1:
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.1.1.tgz#7e95acb24aa92f5885e0abef5ba131330d4ae683"
   integrity sha512-JvdAWfbXeIGaZ9cILp38HntZSFSo3mWg6xGcJJsd+d4aRMOqauag1C63dJfDw7OaMYwEbHMOxEZ1lqVRYP2OAw==
 
-sky-lang@0.0.10:
-  version "0.0.10"
-  resolved "https://registry.yarnpkg.com/sky-lang/-/sky-lang-0.0.10.tgz#2096f6b0ebb85f95c33390db97f428f0fbd16a6a"
-  integrity sha512-euBAlz1qcSp9mky6/F9804baFduEH8VD6x/cNR4i0vFSG+SeWWLtrb54gbgKPz0igMfZpzLCPd7qxaOVBUrhwA==
+sky-lang@0.0.11-beta:
+  version "0.0.11-beta"
+  resolved "https://registry.yarnpkg.com/sky-lang/-/sky-lang-0.0.11-beta.tgz#9a3e4c92715e5a7d0c36f3d98c1fd3423ccddb0d"
+  integrity sha512-ZNli29qVje8W/f7WW4LWjj55ykOncr4UxvMZL8j6hySuNtAH6VN3ELUC1TwWTy7jNfumJy2A+jD1jQlkuVgXfA==
   dependencies:
     "@types/lodash" "^4.14.149"
     fp-ts "^2.1.1"
